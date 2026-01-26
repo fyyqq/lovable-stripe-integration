@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
-            $table->string('stripe_payment_intent_id')->unique();
+            $table->string('stripe_id')->unique(); // intent_id or session_id
+            $table->string('type'); // payment_intent | checkout_session
             $table->integer('amount');
             $table->string('currency');
             $table->string('status'); // pending, succeeded, failed
