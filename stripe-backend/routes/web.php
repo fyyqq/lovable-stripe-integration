@@ -20,7 +20,5 @@ Route::post('/stripe/webhook', [StripeController::class, 'webhook']);
 Route::get('/payments/{stripeId}', [StripeController::class, 'status']);
 
 Route::get('/stripe/config', function() {
-    return response()->json([
-        'publishableKey' => config('services.stripe.public'),
-    ]);
+    return response()->json(['publishableKey' => config('services.stripe.public')]);
 });

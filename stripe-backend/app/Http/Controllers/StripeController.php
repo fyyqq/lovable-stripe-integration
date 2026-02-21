@@ -8,40 +8,47 @@ use App\Models\Payment;
 use Stripe\Checkout\Session;
 use Stripe\Webhook;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class StripeController extends Controller
 {
     public function __construct() {
-        Stripe::setApiKey(config('services.stripe.secret'));
-    }
-
-    // 🔹 FLOW 1 — Pay in App (PaymentElement)
-    public function createPaymentIntent(Request $request) : JsonResponse
-    {
-
+        // Stripe::setApiKey(config('services.stripe.secret'));
         Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
-
-        $amount = $request->amount; // e.g. 4900
+    }
+        
+    // 🔹 FLOW 1 — Pay in App (PaymentElement)
+    public function createPaymentIntent(Request $request) {
+        $planAmount = [ 'Starter' => 1900, 'Pro' => 4900, 'Enterprise' => 14900 ];
+        $selectedPlan = $request->plan; // e.g. Pro
+        $amount = $planAmount[$selectedPlan];
 
         $intent = PaymentIntent::create([
-            // 'amount' => $amount,
-            'amount' => 1200,
+            'amount' => $amount,
             'currency' => 'usd',
             'automatic_payment_methods' => ['enabled' => true],
         ]);
 
-        // Payment::create([
-        //     'stripe_id' => $intent->id,
-        //     'type' => 'payment_intent',
-        //     'amount' => $amount,
-        //     'currency' => 'usd',
-        //     'status' => 'pending',
-        // ]);
+        $table_payment = DB::table('payments');
+
+        if (!$table_payment->where(['stripe_id' => $intent->id])->exists()) {
+            $table_payment->insert([
+                'stripe_id' => $intent->id,
+                'type' => $intent->object,
+                'amount' => $amount,
+                'currency' => $intent->currency,
+                'status' => 'pending',
+                'created_at' => now(),
+            ]);
+        } else {
+            $table_payment->where('stripe_id', $intent->id)->update([
+                'updated_at' => now(),
+            ]);
+        }
 
         return response()->json([
+            'amount' => $amount,
             'client_secret' => $intent->client_secret,
-            'stripe_id' => $intent->id,
         ]);
     }
 
@@ -66,7 +73,7 @@ class StripeController extends Controller
             'cancel_url' => 'http://localhost:5173/cancel',
         ]);
 
-        Payment::create([
+        DB::table('payments')->insert([
             'stripe_id' => $session->id,
             'type' => 'checkout_session',
             'amount' => $amount,
