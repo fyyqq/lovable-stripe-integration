@@ -16,7 +16,7 @@ class StripeController extends Controller
         // Stripe::setApiKey(config('services.stripe.secret'));
         Stripe::setApiKey(env('STRIPE_SECRET_KEY'));
     }
-        
+
     // 🔹 FLOW 1 — Pay in App (PaymentElement)
     public function createPaymentIntent(Request $request) {
         $planAmount = [ 'Starter' => 1900, 'Pro' => 4900, 'Enterprise' => 14900 ];
@@ -33,6 +33,7 @@ class StripeController extends Controller
 
         if (!$table_payment->where(['stripe_id' => $intent->id])->exists()) {
             $table_payment->insert([
+                // 'user_id' => auth()->id,
                 'stripe_id' => $intent->id,
                 'type' => $intent->object,
                 'amount' => $amount,
@@ -47,6 +48,7 @@ class StripeController extends Controller
         }
 
         return response()->json([
+            // 'user_id' => auth(),
             'amount' => $amount,
             'client_secret' => $intent->client_secret,
         ]);
