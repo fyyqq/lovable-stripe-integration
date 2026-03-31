@@ -3,21 +3,21 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request;
 
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('app');
 });
 
-Route::post('/api/signin', [AuthController::class, 'signin'])->name('login');
-Route::post('/api/signup', [AuthController::class, 'signup'])->name('register');
+Route::post('/api/signin', [AuthController::class, 'signin'])->name('signin');
+Route::post('/api/signup', [AuthController::class, 'signup'])->name('signup');
+Route::post('/api/logout', [AuthController::class, 'logout'])->name('logout');
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/api/user', [AuthController::class, 'getUser'])->middleware('auth')->name('get_user');
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
 
 // Route::post('/create-payment-intent', [PaymentController::class, 'create']);
 // Route::get('/payments/{intentId}', [PaymentController::class, 'status']);

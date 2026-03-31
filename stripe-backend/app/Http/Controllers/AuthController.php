@@ -10,6 +10,14 @@ use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
+
+    public function getUser() {
+        if (auth()->check()) {
+            $user = Auth::user();
+            return response()->json(['check_auth' => auth()->check(), 'user' => $user]);
+        }
+    }
+
     public function signup(Request $request)
     {
         // return response()->json($request->all());
@@ -31,11 +39,13 @@ class AuthController extends Controller
             'created_at' => now(),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        // $token = $user->createToken('auth_token')->plainTextToken;
+
+        Auth::login($user);
 
         return response()->json([
             'message' => 'User registered successfully',
-            'access_token' => $token,
+            // 'access_token' => $token,
             'user' => $user
         ], 201);
     }
@@ -51,12 +61,29 @@ class AuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        $request->session()->regenerate();
+
         $user = Auth::user();
-        $token = $user->createToken('token')->plainTextToken;
+        Auth::login($user);
+        // $token = $user->createToken('token')->plainTextToken;
 
         return response()->json([
-            'access_token' => $token,
+            'message' => 'User Signin successfully',
             'user' => $user
+            // 'access_token' => $token,
         ]);
+    }
+
+    public function logout(Request $request) {
+        Auth::logout();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return response()->json(['message' => 'Logged out']);
+    }
+
+    public function user(Request $request) {
+        return response()->json($request->user()); // same as Auth::user()
     }
 }
