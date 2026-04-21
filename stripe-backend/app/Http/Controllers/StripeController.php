@@ -8,7 +8,10 @@ use App\Models\Payment;
 use Stripe\Checkout\Session;
 use Stripe\Webhook;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Stripe\PaymentMethod;
 
 class StripeController extends Controller
 {
@@ -33,7 +36,7 @@ class StripeController extends Controller
 
         if (!$table_payment->where(['stripe_id' => $intent->id])->exists()) {
             $table_payment->insert([
-                // 'user_id' => auth()->id,
+                'user_id' => $request->user['id'],
                 'stripe_id' => $intent->id,
                 'type' => $intent->object,
                 'amount' => $amount,
@@ -48,16 +51,18 @@ class StripeController extends Controller
         }
 
         return response()->json([
-            // 'user_id' => auth(),
             'amount' => $amount,
             'client_secret' => $intent->client_secret,
+            'stripe_id' => $intent->id,
         ]);
     }
 
     // 🔹 FLOW 2 — Redirect to Stripe Checkout
     public function createCheckoutSession(Request $request)
     {
-        $amount = $request->amount;
+        $planAmount = [ 'starter' => 1900, 'pro' => 4900, 'enterprise' => 14900 ];
+        $selectedPlan = $request->plan; // e.g. Pro
+        $amount = $planAmount[$selectedPlan];
 
         $session = Session::create([
             'mode' => 'payment',
@@ -65,45 +70,50 @@ class StripeController extends Controller
                 'price_data' => [
                 'currency' => 'usd',
                 'product_data' => [
-                    'name' => 'Pro Plan',
+                    'name' => ucfirst($request->plan) . ' Plan',
                 ],
                 'unit_amount' => $amount,
                 ],
             'quantity' => 1,
             ]],
-            'success_url' => 'http://localhost:5173/success?session_id={CHECKOUT_SESSION_ID}',
-            'cancel_url' => 'http://localhost:5173/cancel',
+            'success_url' => 'http://localhost:8080/payment-success?session_id={CHECKOUT_SESSION_ID}',
+            'cancel_url' => 'http://localhost:8080/payment-failed',
         ]);
 
         DB::table('payments')->insert([
+            'user_id' => $request->user['id'],
             'stripe_id' => $session->id,
             'type' => 'checkout_session',
             'amount' => $amount,
             'currency' => 'usd',
             'status' => 'pending',
+            'created_at' => now(),
         ]);
 
         return response()->json([
             'checkout_url' => $session->url,
+            // 'result' => $amount,
         ]);
     }
 
     // 🔹 WEBHOOK (SOURCE OF TRUTH)
     public function webhook(Request $request) {
         $event = Webhook::constructEvent(
-        $request->getContent(),
-        $request->header('Stripe-Signature'),
-        env('STRIPE_WEBHOOK_SECRET')
+            $request->getContent(),
+            $request->header('Stripe-Signature'),
+            env('STRIPE_WEBHOOK_SECRET')
         );
+
+        Log::info('Webhook hit', [$event->type]);
 
         if ($event->type === 'payment_intent.succeeded') {
             $id = $event->data->object->id;
-            Payment::where('stripe_id', $id)->update(['status' => 'succeeded']);
+            DB::table('payments')->where('stripe_id', $id)->update(['status' => 'succeeded', 'updated_at' => now()]);
         }
 
         if ($event->type === 'checkout.session.completed') {
             $id = $event->data->object->id;
-            Payment::where('stripe_id', $id)->update(['status' => 'succeeded']);
+            DB::table('payments')->where('stripe_id', $id)->update(['status' => 'succeeded', 'updated_at' => now()]);
         }
 
         if (
@@ -111,7 +121,7 @@ class StripeController extends Controller
             $event->type === 'checkout.session.expired'
         ) {
             $id = $event->data->object->id;
-            Payment::where('stripe_id', $id)->update(['status' => 'failed']);
+            DB::table('payments')->where('stripe_id', $id)->update(['status' => 'failed', 'updated_at' => now()]);
         }
 
         return response()->json(['ok' => true]);
@@ -119,6 +129,15 @@ class StripeController extends Controller
 
     // 🔹 FRONTEND POLLING
     public function status($stripeId) {
-        return Payment::where('stripe_id', $stripeId)->firstOrFail();
+        $check_payment = DB::table('payments')->where('stripe_id', $stripeId)->firstOrFail();
+
+        return response()->json([
+            'payment' => $check_payment
+        ]);
+    }
+
+    public function updateFailedStatus($stripeId, $reason) {
+        $update_payment_status = DB::table('payments')->where('stripe_id', $stripeId)->update(['status' => 'failed', 'reason' => $reason, 'updated_at' => now()]);
+        return response()->json(['status' => $update_payment_status]);
     }
 }

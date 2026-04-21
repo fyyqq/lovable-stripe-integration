@@ -24,9 +24,10 @@ Route::get('/api/user', [AuthController::class, 'getUser'])->middleware('auth')-
 // Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);
 
 Route::post('/api/create-payment-intent', [StripeController::class, 'createPaymentIntent']); // Pay in App
-Route::post('/create-checkout-session', [StripeController::class, 'createCheckoutSession']); // Redirect to Stripe Checkout
-Route::post('/stripe/webhook', [StripeController::class, 'webhook']);
-Route::get('/payments/{stripeId}', [StripeController::class, 'status']);
+Route::post('/api/create-checkout-session', [StripeController::class, 'createCheckoutSession']); // Redirect to Stripe Checkout
+Route::post('/api/stripe/webhook', [StripeController::class, 'webhook']);
+Route::get('/api/find-payments/{stripeId}', [StripeController::class, 'status']);
+Route::post('/api/update-status-payments/{stripeId}/{reason}', [StripeController::class, 'updateFailedStatus']);
 
 Route::get('/stripe/config', function() {
     return response()->json(['publishableKey' => config('services.stripe.public')]);
