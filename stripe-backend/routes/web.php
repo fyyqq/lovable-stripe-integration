@@ -28,6 +28,7 @@ Route::post('/api/create-checkout-session', [StripeController::class, 'createChe
 Route::post('/api/stripe/webhook', [StripeController::class, 'webhook']);
 Route::get('/api/find-payments/{stripeId}', [StripeController::class, 'status']);
 Route::post('/api/update-status-payments/{stripeId}/{reason}', [StripeController::class, 'updateFailedStatus']);
+Route::get('/api/recent-transactions', [StripeController::class, 'recentTransactions']);
 
 Route::get('/stripe/config', function() {
     return response()->json(['publishableKey' => config('services.stripe.public')]);

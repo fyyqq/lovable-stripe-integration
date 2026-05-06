@@ -96,7 +96,7 @@ class StripeController extends Controller
         ]);
     }
 
-    // 🔹 WEBHOOK (SOURCE OF TRUTH)
+    // 🔹 WEBHOOK (CHECKOUT SESSION)
     public function webhook(Request $request) {
         $event = Webhook::constructEvent(
             $request->getContent(),
@@ -139,5 +139,11 @@ class StripeController extends Controller
     public function updateFailedStatus($stripeId, $reason) {
         $update_payment_status = DB::table('payments')->where('stripe_id', $stripeId)->update(['status' => 'failed', 'reason' => $reason, 'updated_at' => now()]);
         return response()->json(['status' => $update_payment_status]);
+    }
+
+    public function recentTransactions() {
+        $transactions = DB::table('users')->leftJoin('payments', 'users.id', '=', 'payments.user_id')->get();
+        // $transactions = DB::table('payments')->join('users', 'users.id', '=', 'payments.user_id')->latest()->get();
+        return response()->json(['transactions' => $transactions]);
     }
 }
