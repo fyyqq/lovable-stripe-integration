@@ -33,22 +33,15 @@ class StripeController extends Controller
         ]);
 
         $table_payment = DB::table('payments');
-
-        if (!$table_payment->where(['stripe_id' => $intent->id])->exists()) {
-            $table_payment->insert([
-                'user_id' => $request->user['id'],
-                'stripe_id' => $intent->id,
-                'type' => $intent->object,
-                'amount' => $amount,
-                'currency' => $intent->currency,
-                'status' => 'pending',
-                'created_at' => now(),
-            ]);
-        } else {
-            $table_payment->where('stripe_id', $intent->id)->update([
-                'updated_at' => now(),
-            ]);
-        }
+        $table_payment->insert([
+            'user_id' => $request->user['id'],
+            'stripe_id' => $intent->id,
+            'type' => $intent->object,
+            'amount' => $amount,
+            'currency' => $intent->currency,
+            'status' => 'pending',
+            'created_at' => now(),
+        ]);
 
         return response()->json([
             'amount' => $amount,
