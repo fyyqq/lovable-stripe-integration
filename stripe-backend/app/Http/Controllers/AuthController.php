@@ -29,7 +29,10 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], 422);
         }
 
         $user = User::create([
@@ -44,10 +47,11 @@ class AuthController extends Controller
         Auth::login($user);
 
         return response()->json([
+            'status' => true,
             'message' => 'User registered successfully',
             // 'access_token' => $token,
             'user' => $user
-        ], 201);
+        ]);
     }
 
     public function signin(Request $request)
@@ -57,8 +61,18 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
         if (!Auth::attempt($validator->validated())) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json([
+                'status' => false,
+                'message' => 'Invalid credentials'
+            ], 401);
         }
 
         $request->session()->regenerate();
@@ -68,6 +82,7 @@ class AuthController extends Controller
         // $token = $user->createToken('token')->plainTextToken;
 
         return response()->json([
+            'status' => true,
             'message' => 'User Signin successfully',
             'user' => $user
             // 'access_token' => $token,
@@ -80,7 +95,7 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json(['message' => 'Logged out']);
+        return response()->json(['status' => true, 'message' => 'Logged out']);
     }
 
     public function user(Request $request) {

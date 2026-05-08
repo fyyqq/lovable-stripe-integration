@@ -70,6 +70,7 @@ const Login = () => {
       setTimeout(() => {
         console.log(res_json);
         setIsSubmitting(false);
+        if (res_json.status) { window.location.href = "/"; }
       }, 1000);
     } catch (err) {
       console.error(err);

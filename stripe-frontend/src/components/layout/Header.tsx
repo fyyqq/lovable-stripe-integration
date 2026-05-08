@@ -32,8 +32,10 @@ const Header = () => {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       }
-    }).then(res => res.json())
-    .then(res => console.log(res));
+    })
+    .then(res => res.json())
+    .then(res => res.status ? window.location.reload() : null)
+    .catch(err => alert(err.message));
   }
 
   return (

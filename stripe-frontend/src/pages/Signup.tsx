@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { set } from "date-fns";
 
 const Signup = () => {
   const [fullName, setFullName] = useState("");
@@ -13,6 +14,7 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [haveErrors, setHaveErrors] = useState(false);
 
   const viewPassword = (element) => {
     jQuery(element).siblings('input').attr('type', function(index, currentAttr) {
@@ -63,14 +65,16 @@ const Signup = () => {
       
       if (validate_errors?.[key]) {
         jQuery(elem).removeClass('hidden').html(validate_errors[key][0]);
+        setIsSubmitting(false);
+        setHaveErrors(true);
       } else {
         jQuery(elem).addClass('hidden').html('');
+        setHaveErrors(false);
       }
     });
     
     setTimeout(() => {
-      // setIsSubmitting(false);
-      console.log(res_json, isSubmitting);
+      if (res_json.status) { window.location.href = "/"; }
     }, 1000);
   };    
 
@@ -145,8 +149,8 @@ const Signup = () => {
               </div>
             </CardContent>
             <CardFooter className="flex flex-col gap-4">
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Creating account..." : "Create account"}
+              <Button type="submit" className="w-full" disabled={isSubmitting || haveErrors}>
+                {isSubmitting || haveErrors ? "Creating account..." : "Create account"}
               </Button>
               <p className="text-sm text-muted-foreground text-center">
                 Already have an account?{" "}
