@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 
 const Header = () => {
-  const { auth } = useAuth();
+  const { auth, loading } = useAuth();
   const location = useLocation();
   
   const navLinks = [
@@ -66,7 +66,7 @@ const Header = () => {
         </nav>
 
         <div className="flex items-center gap-3">
-          {!auth.check_auth ? (
+          { loading ? null : !auth.check_auth ? (
             navLinksAuth.map((link) => (
               <Link key={link.href} to={link.href}>
                 <Button variant={link.href === "/signin" ? "ghost" : ""} size="sm">

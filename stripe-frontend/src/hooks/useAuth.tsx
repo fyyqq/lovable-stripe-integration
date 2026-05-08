@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 
 export const useAuth = () => {
   const [auth, setAuth] = useState({ check_auth: false, user_data: null, loading: true });
+  const [loading, setLoading] = useState(true);
 
   const refreshAuth = useCallback(async () => {
     try {
@@ -15,6 +16,8 @@ export const useAuth = () => {
       setAuth({ check_auth: !!data.check_auth, user_data: data.user ?? null, loading: false });
     } catch {
       setAuth({ check_auth: false, user_data: null, loading: false });
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -22,5 +25,5 @@ export const useAuth = () => {
     refreshAuth();
   }, [refreshAuth]);
 
-  return { auth, refreshAuth };
+  return { auth, refreshAuth, loading };
 };
