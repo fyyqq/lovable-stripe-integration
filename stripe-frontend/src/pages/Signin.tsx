@@ -15,31 +15,23 @@ const Login = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [isAuth, setIsAuth] = useState({});
-  
-  // useEffect(() => {
-  //   const initAuth = async () => {
-  //     try {
-  //       const fetchData = await fetch('http://localhost:8000/api/user', {
-  //         method: "GET",
-  //         credentials: "include", // send cookies
-  //         headers: {
-  //           'Accept': 'application/json',
-  //         }
-  //       });
-  //       const dataJson = fetchData.json();
-  //       setIsAuth({
-  //         "check_auth" : dataJson.check_auth,
-  //         "user_data" : dataJson.user
-  //       });
 
-  //       console.log("Result", isAuth);
-  //     } catch(err) {
-  //       console.error(err);
-  //       setIsAuth({});
-  //     }
-  //   }
-  //   initAuth();
-  // }, []);
+  const viewPassword = (element) => {
+    jQuery(element).siblings('input').attr('type', function(index, currentAttr) {
+      const view_pass = jQuery(element).find('i.bi-eye');
+      const hide_pass = jQuery(element).find('i.bi-eye-slash');
+
+      if (currentAttr === 'password') {
+        view_pass.addClass('d-none');
+        hide_pass.removeClass('d-none');
+        return 'text';
+      } else {
+        view_pass.removeClass('d-none');
+        hide_pass.addClass('d-none');
+        return 'password';
+      }
+    });
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -108,14 +100,20 @@ const Login = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-                <p id="password_error_msg" className="text-sm text-destructive hidden">&nbsp;</p>
+                <div className="position-relative">
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                  <div className="p-0 m-0 position-absolute" style={{ top: '50%', right: '5px', transform: 'translate(-50%, -50%)', cursor: 'pointer' }} onClick={ (e) => viewPassword(e.currentTarget) }>
+                    <i className="bi bi-eye"></i>
+                    <i className="bi bi-eye-slash d-none"></i>
+                  </div>
+                  <p id="password_error_msg" className="text-sm text-destructive hidden">&nbsp;</p>
+                </div>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
