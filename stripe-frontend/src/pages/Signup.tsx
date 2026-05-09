@@ -74,7 +74,8 @@ const Signup = () => {
     });
     
     setTimeout(() => {
-      if (res_json.status) { window.location.href = "/"; }
+      setIsSubmitting(false);
+      if (data.status == 200) { window.location.href = "/"; }
     }, 1000);
   };    
 

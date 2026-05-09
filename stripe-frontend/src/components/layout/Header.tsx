@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 const Header = () => {
   const { auth, loading } = useAuth();
   const location = useLocation();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   const navLinks = [
     { href: "/", label: "Pricing" },
@@ -25,17 +26,31 @@ const Header = () => {
   });
 
   const logoutFunc = async(elem) => {
-    await fetch('http://localhost:8000/api/logout', {
-      method: 'POST',
-      credentials: "include", // send cookies
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json'
+    setIsSubmitting(true);
+
+    try {
+      const data = await fetch('http://localhost:8000/api/logout', {
+        method: 'POST',
+        credentials: "include", // send cookies
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data_json = await data.json();
+      if (data.status == 200) {
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      } else { 
+        setIsSubmitting(false);
+        return null; 
       }
-    })
-    .then(res => res.json())
-    .then(res => res.status ? window.location.reload() : null)
-    .catch(err => alert(err.message));
+    } catch (error) {
+      setIsSubmitting(false);
+      console.error(error.message);
+    }
   }
 
   return (
@@ -71,7 +86,9 @@ const Header = () => {
               </Link>
             ))
           ) : (
-            <Button onClick={(e) => logoutFunc(e.currentTarget)} className="logout_btn" variant="destructive" size="sm">Logout</Button>
+            <Button onClick={(e) => logoutFunc(e.currentTarget)} className="logout_btn" variant="destructive" size="sm" disabled={isSubmitting}>
+              Logout
+            </Button>
           )}
         </div>
       </div>
