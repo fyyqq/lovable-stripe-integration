@@ -49,26 +49,20 @@ const Header = () => {
         </Link>
         
         <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            link.href === '/dashboard' && !auth.check_auth ? null : (
-            <Link
-              key={link.href}
-              to={link.href}
-              className={cn(
-                "text-sm font-medium transition-colors hover:text-foreground",
-                location.pathname === link.href
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              )}
-            >
-              {link.label}
-            </Link>
+          {
+          navLinks.map((link) => (
+            // if url on /dashboard and user is not authenticated, do not show dashboard link
+            !loading ? null : (link.href === '/dashboard' && !auth.check_auth) ? null : (
+            <Link key={link.href} to={link.href}
+              className={ cn("text-sm font-medium transition-colors hover:text-foreground", location.pathname === link.href ? "text-foreground" : "text-muted-foreground" )} >{link.label}</Link>
             )
-          ))}
+          ))
+          }
         </nav>
 
         <div className="flex items-center gap-3">
-          { loading ? null : !auth.check_auth ? (
+          {/* if loading is false / done, do not show anything, if loading is false and user is not authenticated, show sign in and register button, if user is authenticated, show logout button */}
+          { !loading ? null : !auth.check_auth ? (
             navLinksAuth.map((link) => (
               <Link key={link.href} to={link.href}>
                 <Button variant={link.href === "/signin" ? "ghost" : ""} size="sm">
