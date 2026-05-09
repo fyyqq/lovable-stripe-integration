@@ -60,20 +60,21 @@ class AuthController extends Controller
             return response()->json(['errors' => $validator->errors()], 422);
         }
 
-        if (!Auth::attempt($validator->validated())) {
+        $remember = $request->boolean('rememberMe');
+
+        if (!Auth::attempt($validator->validated(), $remember)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
         $request->session()->regenerate();
 
         $user = Auth::user();
-        Auth::login($user);
+        // Auth::login($user);
         // $token = $user->createToken('token')->plainTextToken;
 
         return response()->json([
             'message' => 'User Signin successfully',
-            'user' => $user
-            // 'access_token' => $token,
+            'user' => $user,
         ], 200);
     }
 
