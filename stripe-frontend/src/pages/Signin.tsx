@@ -14,8 +14,6 @@ const Login = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const [isAuth, setIsAuth] = useState({});
-
   const viewPassword = (element) => {
     jQuery(element).siblings('input').attr('type', function(index, currentAttr) {
       const view_pass = jQuery(element).find('i.bi-eye');
@@ -35,6 +33,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     try {
       await fetch("http://localhost:8000/sanctum/csrf-cookie", {
@@ -48,11 +47,10 @@ const Login = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password, rememberMe })
       });
     
       const res_json = await data.json();
-      setIsSubmitting(true);
 
       const validate_errors = res_json.errors;
       const maxError = { email: '#email_error_msg', password: '#password_error_msg' }
@@ -69,6 +67,7 @@ const Login = () => {
 
       setTimeout(() => {
         setIsSubmitting(false);
+        console.log(res_json);
         if (data.status == 200) { window.location.href = "/"; }
       }, 1000);
     } catch (err) {
