@@ -75,6 +75,7 @@ const Signup = () => {
     
     setTimeout(() => {
       setIsSubmitting(false);
+      console.log(res_json, validate_errors);
       if (data.status == 200) { window.location.href = "/"; }
     }, 1000);
   };    

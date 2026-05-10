@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 
@@ -24,8 +25,8 @@ class AuthController extends Controller
 
         $validator = Validator::make($request->all(), [
             'fullName' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed',
+            'email' => 'required|email:rfc,dns|unique:users,email',
+            'password' => 'required|min:8|confirmed',
         ]);
 
         if ($validator->fails()) {
@@ -62,8 +63,19 @@ class AuthController extends Controller
 
         $remember = $request->boolean('rememberMe');
 
+        // Check if email exists
+        $user = DB::table('users')->where('email', $request->email)->first();
+        if (!$user) {
+            return response()->json(['errors' =>
+                ['email' => ['These credentials do not match our records.']],
+            ], 401);
+        }
+
+        // If email exists, try to authenticate
         if (!Auth::attempt($validator->validated(), $remember)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
+            return response()->json(['errors' => [
+                'password' => ['The password is incorrect.']
+            ]], 401);
         }
 
         $request->session()->regenerate();
