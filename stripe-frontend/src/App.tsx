@@ -17,31 +17,36 @@ import { useState, useEffect } from "react";
 import { useAuth } from "./hooks/useAuth";
 import { DisplayTransactions }  from "./pages/Dashboard";
 import Header from "@/components/layout/Header";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-  const auth = useAuth();
+  const {auth, loading} = useAuth();
 
   return (
     <>
-      {/* <QueryClientProvider client={queryClient}>
+      <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <Toaster />
-          <Sonner /> */}
+          <Sonner />
           <StrictMode>
             <BrowserRouter>
               <Header />
               <main>
                 <Routes>
                   <Route path="/" element={<Pricing />} />
-                  <Route path="/dashboard" element={auth.auth.check_auth ? <Dashboard /> : <Navigate to="/signin" replace />}>
+                  <Route path="/dashboard" element={ 
+                    <ProtectedRoute requireAuth redirectTo="/signin">
+                      <Dashboard />
+                    </ProtectedRoute> 
+                  }>
                     <Route index element={<DisplayTransactions />} />
                     <Route path="success" element={ <DisplayTransactions />} />
                     <Route path="failed" element={ <DisplayTransactions />} />
                     <Route path="pending" element={ <DisplayTransactions />} />
                   </Route>
-                  {/* {auth.auth.check_auth ? (
+                  {auth.check_auth ? (
                     <>
                       <Route path="/checkout" element={ <Checkout /> } />
                       <Route path="/payment-success" element={<PaymentSuccess />} />
@@ -49,17 +54,17 @@ const App = () => {
                     </>
                   ) : (
                     <>
-                      <Route path="/signin" element={ !auth.auth.check_auth ? <Signin /> : <Navigate to="/" replace /> } />
-                      <Route path="/signup" element={ !auth.auth.check_auth ? <Signup /> : <Navigate to="/" replace /> } />
+                      <Route path="/signin" element={ !auth.check_auth ? <Signin /> : <Navigate to="/" replace /> } />
+                      <Route path="/signup" element={ !auth.check_auth ? <Signup /> : <Navigate to="/" replace /> } />
                     </>
-                  )} */}
+                  )}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </main>
             </BrowserRouter>
           </StrictMode>
-        {/* </TooltipProvider>
-      </QueryClientProvider> */}
+        </TooltipProvider>
+      </QueryClientProvider>
     </>
   );
 };

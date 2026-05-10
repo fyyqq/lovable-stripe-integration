@@ -175,10 +175,22 @@ const Dashboard = () => {
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-foreground">Recent Transactions</h2>
                 <nav className="flex items-center justify-between gap-4">
-                  <NavLink to="." end className={ ({ isActive }) => (isActive ? "text-primary" : "") + " position-relative" }>All Txns <span className="badge position-absolute bg-dark rounded-circle px-0" style={{ "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}><p className="fw-normal" style={{ "transform": "translateY(-1.5px)" }}>{transactions.length}</p></span></NavLink>
-                  <NavLink to="success" className={ ({ isActive }) => (isActive ? "text-primary" : "") + " position-relative" }>Success <span className="badge position-absolute bg-dark rounded-circle px-0" style={{ "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}><p className="fw-normal" style={{ "transform": "translateY(-1.5px)" }}>{transactions.filter(txns => txns.status === 'succeeded').length}</p></span></NavLink>
-                  <NavLink to="failed" className={ ({ isActive }) => (isActive ? "text-primary" :  "") + " position-relative" }>Failed <span className="badge position-absolute bg-dark rounded-circle px-0" style={{ "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}><p className="fw-normal" style={{ "transform": "translateY(-1.5px)" }}>{transactions.filter(txns => txns.status === 'failed').length}</p></span></NavLink>
-                  <NavLink to="pending" className={ ({ isActive }) => (isActive ? "text-primary" : "") + " position-relative" }>Pending <span className="badge position-absolute bg-dark rounded-circle px-0" style={{ "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}><p className="fw-normal" style={{ "transform": "translateY(-1.5px)" }}>{transactions.filter(txns => txns.status === 'pending').length}</p></span></NavLink>
+                  <NavLink to="." end className={ ({ isActive }) => (isActive ? "text-primary" : "") + " position-relative" }>All Txns <span className="badge position-absolute bg-dark px-3" style={{ "borderRadius": "25px", "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}>
+                      <p className="fw-normal" style={{ "transform": "translate(-7px, -1px)" }}>{transactions.length}</p>
+                  </span>
+                  </NavLink>
+                  <NavLink to="success" className={ ({ isActive }) => (isActive ? "text-primary" : "") + " position-relative" }>Success <span className="badge position-absolute bg-dark px-3" style={{ "borderRadius": "25px", "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}>
+                    <p className="fw-normal" style={{ "transform": "translate(-7px, -1px)" }}>{transactions.filter(txns => txns.status === 'succeeded').length}</p>
+                  </span>
+                  </NavLink>
+                  <NavLink to="failed" className={ ({ isActive }) => (isActive ? "text-primary" :  "") + " position-relative" }>Failed <span className="badge position-absolute bg-dark px-3" style={{ "borderRadius": "25px", "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}>
+                    <p className="fw-normal" style={{ "transform": "translate(-7px, -1px)" }}>{transactions.filter(txns => txns.status === 'failed').length}</p>
+                  </span>
+                  </NavLink>
+                  <NavLink to="pending" className={ ({ isActive }) => (isActive ? "text-primary" : "") + " position-relative" }>Pending <span className="badge position-absolute bg-dark px-3" style={{ "borderRadius": "25px", "height": "18px", "width": "18px", "margin": "-15px 0px 0 -6px" }}>
+                    <p className="fw-normal" style={{ "transform": "translate(-7px, -1px)" }}>{transactions.filter(txns => txns.status === 'pending').length}</p>
+                  </span>
+                  </NavLink>
                 </nav>
               </div>
             </CardHeader>

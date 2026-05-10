@@ -8,7 +8,7 @@
 All colors MUST be HSL.
 */
 
-main header { visibility: hidden; }
+main header { visibility: hidden; height: 0px; width: 0px; }
 
 @layer base {
   :root {

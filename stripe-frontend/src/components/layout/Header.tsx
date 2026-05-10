@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 
 const Header = () => {
   const { auth, loading } = useAuth();
+
   const location = useLocation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   
@@ -60,16 +61,16 @@ const Header = () => {
           <div className="w-8 h-8 bg-primary flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-sm">S</span>
           </div>
-          <span className="font-semibold text-foreground">SaaSFlow</span>
+          <span className="font-semibold text-foreground">SaaSFlow | {!loading ? '...' : auth.check_auth ? auth.user_data.name : ''}</span>
         </Link>
         
-        <nav className="hidden md:flex items-center gap-8">
+        <nav className="md:flex items-center gap-8">
           {
-          navLinks.map((link) => (
+            navLinks.map((link) => (
             // if url on /dashboard and user is not authenticated, do not show dashboard link
             !loading ? null : (link.href === '/dashboard' && !auth.check_auth) ? null : (
             <Link key={link.href} to={link.href}
-              className={ cn("text-sm font-medium transition-colors hover:text-primary", location.pathname === link.href ? "text-primary" : "text-muted-primary" )} >{link.label}</Link>
+              className={ cn("text-sm font-medium transition-colors hover:text-primary", link.href === "/" ? location.pathname === "/" : location.pathname.startsWith(link.href) ? "text-primary" : "text-muted-primary" )} >{link.label}</Link>
             )
           ))
           }

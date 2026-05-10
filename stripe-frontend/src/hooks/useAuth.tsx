@@ -13,8 +13,10 @@ export const useAuth = () => {
       });
 
       const data = await res.json();
+      setLoading(true);
       setAuth({ check_auth: !!data.check_auth, user_data: data.user ?? null, loading: false });
     } catch {
+      setLoading(true);
       setAuth({ check_auth: false, user_data: null, loading: false });
     } finally {
       setLoading(true);
