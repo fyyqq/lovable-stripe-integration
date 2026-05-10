@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { CreditCard, Lock, ShieldCheck } from "lucide-react";
 import Header from "@/components/layout/Header";
@@ -106,12 +106,15 @@ const Checkout = () => {
     const plan = searchParams.get("plan") || "pro";
     const selectedPlan = planDetails[plan] || planDetails.pro;
     const [stripeID, setStripeID] = useState('')
+    const intentCreated = useRef(false);
     
     const [clientSecret, setClientSecret] = useState<string | null>(null);
 
     useEffect(() => {
         // Add this guard clause
-        if (!auth.user_data) return;
+        if (!auth.user_data || intentCreated.current) return;
+
+        intentCreated.current = true; 
 
         fetch("http://127.0.0.1:8000/api/create-payment-intent", {
             method: "POST",
