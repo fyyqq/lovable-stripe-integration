@@ -69,7 +69,7 @@ const Header = () => {
             // if url on /dashboard and user is not authenticated, do not show dashboard link
             !loading ? null : (link.href === '/dashboard' && !auth.check_auth) ? null : (
             <Link key={link.href} to={link.href}
-              className={ cn("text-sm font-medium transition-colors hover:text-foreground", location.pathname === link.href ? "text-foreground" : "text-muted-foreground" )} >{link.label}</Link>
+              className={ cn("text-sm font-medium transition-colors hover:text-primary", location.pathname === link.href ? "text-primary" : "text-muted-primary" )} >{link.label}</Link>
             )
           ))
           }

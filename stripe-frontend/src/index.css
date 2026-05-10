@@ -8,6 +8,8 @@
 All colors MUST be HSL.
 */
 
+main header { visibility: hidden; }
+
 @layer base {
   :root {
     --background: 209 40% 96%;
